@@ -56,7 +56,7 @@ public class TurnoController{
         }
     }
 
-    @PutMapping("/{id}")
+    /*@PutMapping("/{id}")
     public ResponseEntity<Turno> putTurno(@RequestBody Turno turnoNuevo, @PathVariable Long id){
 
         Optional<Turno> turno = turnoRepository.findById(id);
@@ -71,6 +71,26 @@ public class TurnoController{
             return ResponseEntity.notFound().build();
         }
 
+    }*/
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Turno> updateTurno(@PathVariable Long id,
+                                             @RequestParam(name = "raza_paciente") String razaPaciente,
+                                             @RequestParam(required = true) String nombrePaciente) {
+        Optional<Turno> optionalTurno = turnoRepository.findById(id);
+        if (optionalTurno.isPresent()) {
+            Turno existingTurno = optionalTurno.get();
+            if (razaPaciente != null) {
+                existingTurno.setRazaPaciente(razaPaciente);
+            }
+            if (nombrePaciente != null) {
+                existingTurno.setNombrePaciente(nombrePaciente);
+            }
+            Turno savedTurno = turnoRepository.save(existingTurno);
+            return ResponseEntity.ok(savedTurno);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
 
