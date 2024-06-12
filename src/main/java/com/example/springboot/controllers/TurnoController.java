@@ -1,5 +1,6 @@
 package com.example.springboot.controllers;
 
+import com.example.springboot.exceptions.NotFoundException;
 import com.example.springboot.repositories.TurnoRepository;
 import com.example.springboot.models.Turno;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,65 +33,35 @@ public class TurnoController{
 
     @GetMapping("/{id}")
     public ResponseEntity<Turno> obtenerTurnoPorId(@PathVariable Long id){
-            Optional<Turno> turno = turnoRepository.findById(id);
-
-            if(turno.isPresent()){
-                return ResponseEntity.ok(turno.get());
-            }
-            else{
-                return ResponseEntity.notFound().build();
-            }
+        Turno turnoBuscado = this.buscarTurno(id);
+        return ResponseEntity.ok(turnoBuscado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTurno(@PathVariable Long id){
-
-        Optional<Turno> turno = turnoRepository.findById(id);
-
-        if(turno.isPresent()){
-            turnoRepository.delete(turno.get());
-            return ResponseEntity.ok().build();
-        }
-        else{
-            return ResponseEntity.notFound().build();
-        }
+        Turno turnoBuscado = this.buscarTurno(id);
+        turnoRepository.delete(turnoBuscado);
+        return ResponseEntity.ok().build();
     }
 
-    /*@PutMapping("/{id}")
-    public ResponseEntity<Turno> putTurno(@RequestBody Turno turnoNuevo, @PathVariable Long id){
+    private Turno buscarTurno(Long id) {
+        Optional<Turno> posibleTurno = turnoRepository.findById(id);
 
-        Optional<Turno> turno = turnoRepository.findById(id);
+        if(posibleTurno.isEmpty())
+            throw new NotFoundException("No existe un turno de id " + id);
 
-        if(turno.isPresent()){
-            turno.get().setRazaPaciente(turnoNuevo.getRazaPaciente());
-            turno.get().setNombrePaciente(turnoNuevo.getNombrePaciente());
-            turnoRepository.save(turno.get());
-            return ResponseEntity.ok().build();
-        }
-        else{
-            return ResponseEntity.notFound().build();
-        }
-
-    }*/
+        return posibleTurno.get();
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Turno> updateTurno(@PathVariable Long id,
                                              @RequestParam(name = "raza_paciente") String razaPaciente,
                                              @RequestParam(required = true) String nombrePaciente) {
-        Optional<Turno> optionalTurno = turnoRepository.findById(id);
-        if (optionalTurno.isPresent()) {
-            Turno existingTurno = optionalTurno.get();
-            if (razaPaciente != null) {
-                existingTurno.setRazaPaciente(razaPaciente);
-            }
-            if (nombrePaciente != null) {
-                existingTurno.setNombrePaciente(nombrePaciente);
-            }
-            Turno savedTurno = turnoRepository.save(existingTurno);
-            return ResponseEntity.ok(savedTurno);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Turno existingTurno = buscarTurno(id);
+        existingTurno.setNombrePaciente(nombrePaciente);
+        existingTurno.setRazaPaciente(razaPaciente);
+        Turno savedTurno = turnoRepository.save(existingTurno);
+        return ResponseEntity.ok(savedTurno);
     }
 
 
