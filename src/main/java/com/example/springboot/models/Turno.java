@@ -1,4 +1,4 @@
-package com.example.springboot;
+package com.example.springboot.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,6 +17,4 @@ public class Turno {
     String razaPaciente;
     @Column
     String nombrePaciente;
-    @Column
-    LocalDateTime fechaTurno;
 }
